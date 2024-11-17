@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "receipts_api",
+    "deposit_checks",
 ]
 
 
