@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .upload-container {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #preview {
+            max-width: 300px;
+            margin: 20px auto;
+            display: none;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Receipt Upload Test</h1>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div class="upload-container">
+            <p>Select a receipt image to analyze</p>
+            <input type="file" id="fileInput" accept="image/*" required>
+        </div>
+        <button type="submit">Process Receipt</button>
+    </form>
+
+    <img id="preview" alt="Receipt preview">
+    <div id="response"></div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const response = document.getElementById('response');
+
+        // Show preview when file is selected
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                response.textContent = 'Please select a file';
+                return;
+            }
+
+            response.textContent = 'Processing...';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/receipts/process_receipt/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+
+                response.textContent = JSON.stringify(data, null, 2);
+                response.style.backgroundColor = '#dff0d8';
+            } catch (error) {
+                console.error('Error:', error);
+                response.textContent = `Error: ${error.message}`;
+                response.style.backgroundColor = '#f2dede';
+            }
+        });
+    </script>
+</body>
+</html> 
