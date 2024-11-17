@@ -12,3 +12,4 @@ PINATA_API_KEY=
 PINATA_SECRET_KEY=
 GEMINI_API_KEY=
 ```
+3. python3 manage.py runserver
