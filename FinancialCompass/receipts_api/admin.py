@@ -10,7 +10,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('store_name', 'date', 'image')
+            'fields': ('store_name', 'date')
         }),
         ('Financial Details', {
             'fields': ('subtotal', 'tax', 'total')
@@ -23,12 +23,12 @@ class ReceiptAdmin(admin.ModelAdmin):
 
 @admin.register(ReceiptItem)
 class ReceiptItemAdmin(admin.ModelAdmin):
-    list_display = ('receipt', 'name', 'price')
-    list_filter = ('receipt__store_name',)
+    list_display = ('receipt', 'name', 'price', 'purchase_date')
+    list_filter = ('receipt__store_name', 'purchase_date')
     search_fields = ('name', 'receipt__store_name')
     
     fieldsets = (
         ('Item Details', {
-            'fields': ('receipt', 'name', 'price')
+            'fields': ('receipt', 'name', 'price', 'purchase_date')
         }),
     )
