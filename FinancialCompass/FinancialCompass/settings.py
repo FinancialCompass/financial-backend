@@ -43,6 +43,23 @@ INSTALLED_APPS = [
     "receipts_api",
 ]
 
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+PINATA_API_KEY = os.getenv('PINATA_API_KEY')
+PINATA_SECRET_KEY = os.getenv('PINATA_SECRET_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+APPWRITE_ENDPOINT = os.getenv('APPWRITE_ENDPOINT')
+APPWRITE_PROJECT_ID = os.getenv('APPWRITE_PROJECT_ID')
+APPWRITE_API_KEY = os.getenv('APPWRITE_API_KEY')
+APPWRITE_DATABASE_ID = os.getenv('APPWRITE_DATABASE_ID')
+APPWRITE_COLLECTION_ID = os.getenv('APPWRITE_COLLECTION_ID')
+
+
+
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -51,10 +68,13 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "FinancialCompass.urls"
 
+
+CORS_ALLOW_ALL_ORIGINS = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
