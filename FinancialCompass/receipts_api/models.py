@@ -1,38 +1,47 @@
 from django.db import models
 from django.utils import timezone
+from decimal import Decimal
 
 class Receipt(models.Model):
-    store_name = models.CharField(max_length=255, default='Unknown Store')
-    date = models.DateField(default=timezone.now)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    ipfs_hash = models.CharField(max_length=255, blank=True)
+    store_name = models.CharField(max_length=255)
+    date = models.DateField(null=True, blank=True)
+    subtotal = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        default=Decimal('0.00'),
+        null=True,
+        blank=True
+    )
+    tax = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        default=Decimal('0.00'),
+        null=True,
+        blank=True
+    )
+    total = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        default=Decimal('0.00'),
+        null=True,
+        blank=True
+    )
+    image = models.ImageField(upload_to='receipts/', null=True, blank=True)
+    raw_response = models.JSONField(default=dict, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.store_name} - {self.date}"
-
-    class Meta:
-        ordering = ['-date']
+        return f"{self.store_name} - {self.date or 'No date'} (${self.total or 0})"
 
 class ReceiptItem(models.Model):
-    CATEGORY_CHOICES = [
-        ('GROCERY', 'Grocery'),
-        ('ELECTRONICS', 'Electronics'),
-        ('CLOTHING', 'Clothing'),
-        ('FOOD', 'Food & Dining'),
-        ('OTHER', 'Other'),
-    ]
-
     receipt = models.ForeignKey(Receipt, related_name='items', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, default='Unknown Item')
-    quantity = models.IntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    category = models.CharField(
-        max_length=20, 
-        choices=CATEGORY_CHOICES, 
-        default='OTHER'
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        default=Decimal('0.00')
     )
 
     def __str__(self):
-        return f"{self.name} ({self.receipt.store_name})"
+        return f"{self.name} - ${self.price}"

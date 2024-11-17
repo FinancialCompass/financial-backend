@@ -6,6 +6,10 @@ import google.generativeai as genai
 import os
 from PIL import Image
 import logging
+import json
+from decimal import Decimal
+from django.core.files.base import ContentFile
+from .models import Receipt, ReceiptItem
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +50,7 @@ class ReceiptViewSet(viewsets.ViewSet):
             prompt = """
             Analyze this receipt and provide a JSON response with:
             - store_name: Name of the store/restaurant
-            - date: Date of purchase
+            - date: Date of purchase (YYYY-MM-DD format)
             - items: Array of items, each with:
                 - name: Item name
                 - price: Price as number
@@ -73,13 +77,47 @@ class ReceiptViewSet(viewsets.ViewSet):
                 else:
                     json_str = response_text.strip()
                 print(f"Processed response: {json_str[:200]}...")
+
+                # Parse the JSON response
+                receipt_data = json.loads(json_str)
+                
+                # Create Receipt instance
+                receipt = Receipt.objects.create(
+                    store_name=receipt_data['store_name'],
+                    date=receipt_data['date'],
+                    subtotal=Decimal(str(receipt_data['subtotal'])),
+                    tax=Decimal(str(receipt_data['tax'])),
+                    total=Decimal(str(receipt_data['total'])),
+                    raw_response=receipt_data
+                )
+                
+                # Save the image
+                receipt.image.save(file.name, ContentFile(file.read()), save=True)
+                
+                # Create ReceiptItem instances
+                for item in receipt_data['items']:
+                    ReceiptItem.objects.create(
+                        receipt=receipt,
+                        name=item['name'],
+                        price=Decimal(str(item['price']))
+                    )
+                
+                print(f"Receipt saved with ID: {receipt.id}")
+                
                 return Response({
                     'success': True,
-                    'receipt_data': json_str
+                    'receipt_id': receipt.id,
+                    'receipt_data': receipt_data
                 })
 
+            except json.JSONDecodeError as e:
+                print(f"JSON parsing error: {str(e)}")
+                return Response({
+                    'error': f'Invalid JSON response from Gemini: {str(e)}',
+                    'raw_response': json_str
+                }, status=500)
             except Exception as e:
-                print(f"Error processing response: {str(e)}")
+                print(f"Unexpected error: {str(e)}")
                 return Response({
                     'error': str(e)
                 }, status=500)
