@@ -49,5 +49,6 @@ class ReceiptItem(models.Model):
         default=Decimal('0.00')
     )
     purchase_date = models.DateField(null=True, blank=True)
+    category = models.CharField(max_length=255,default='food')
     def __str__(self):
         return f"{self.name} - ${self.price}"

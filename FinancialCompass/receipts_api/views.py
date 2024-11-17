@@ -62,6 +62,7 @@ class ReceiptViewSet(viewsets.ViewSet):
             - items: Array of items, each with:
                 - name: Item name
                 - price: Price as number
+                - category: the category of the item
             - subtotal: Subtotal before tax
             - tax: Tax amount
             - total: Total amount
@@ -108,7 +109,8 @@ class ReceiptViewSet(viewsets.ViewSet):
                     receipt=receipt,
                     name=item['name'],
                     price=Decimal(str(item['price'])),
-                    purchase_date=receipt_date
+                    purchase_date=receipt_date,
+                    category= item['category']
                 )
 
             return Response({
