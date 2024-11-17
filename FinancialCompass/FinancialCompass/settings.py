@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,7 +38,27 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "corsheaders",
+    "receipts_api",
 ]
+
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+PINATA_API_KEY = os.getenv('PINATA_API_KEY')
+PINATA_SECRET_KEY = os.getenv('PINATA_SECRET_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+APPWRITE_ENDPOINT = os.getenv('APPWRITE_ENDPOINT')
+APPWRITE_PROJECT_ID = os.getenv('APPWRITE_PROJECT_ID')
+APPWRITE_API_KEY = os.getenv('APPWRITE_API_KEY')
+APPWRITE_DATABASE_ID = os.getenv('APPWRITE_DATABASE_ID')
+APPWRITE_COLLECTION_ID = os.getenv('APPWRITE_COLLECTION_ID')
+
+
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -47,10 +68,13 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "FinancialCompass.urls"
 
+
+CORS_ALLOW_ALL_ORIGINS = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -121,3 +145,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Gemini Settings
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')

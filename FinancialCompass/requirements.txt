@@ -1,0 +1,17 @@
+appwrite==7.0.0
+asgiref==3.8.1
+beautifulsoup4==4.12.3
+certifi==2024.8.30
+charset-normalizer==3.4.0
+Django==5.1.3
+djangorestframework==3.15.2
+google==3.0.0
+idna==3.10
+pillow==11.0.0
+python-dotenv==1.0.1
+requests==2.32.3
+soupsieve==2.6
+sqlparse==0.5.2
+urllib3==2.2.3
+google-generativeai==0.1.0
+Pillow==11.0.0
