@@ -20,7 +20,7 @@ class ReceiptViewSet(viewsets.ViewSet):
             if not api_key:
                 raise ValueError("GEMINI_API_KEY not configured")
             genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-pro-vision')
+            self.model = genai.GenerativeModel('gemini-1.5-flash')
             print("Gemini model initialized successfully")
         except Exception as e:
             print(f"Error initializing Gemini: {str(e)}")
@@ -30,14 +30,12 @@ class ReceiptViewSet(viewsets.ViewSet):
     def process_receipt(self, request):
         print("\n=== Starting Receipt Processing ===")
         try:
-            # 1. Get and verify file
             file = request.FILES.get('file')
             if not file:
                 print("No file received in request")
                 return Response({'error': 'No file provided'}, status=400)
             print(f"Received file: {file.name} ({file.size} bytes)")
 
-            # 2. Open and process image
             try:
                 image = Image.open(file)
                 print(f"Image opened successfully: {image.format}, size: {image.size}")
@@ -45,7 +43,6 @@ class ReceiptViewSet(viewsets.ViewSet):
                 print(f"Error opening image: {str(e)}")
                 return Response({'error': f'Error opening image: {str(e)}'}, status=400)
 
-            # 3. Prepare prompt
             prompt = """
             Analyze this receipt and provide a JSON response with:
             - store_name: Name of the store/restaurant
@@ -59,26 +56,23 @@ class ReceiptViewSet(viewsets.ViewSet):
 
             Format all numbers as decimal values without currency symbols.
             """
-            print("Prompt prepared")
+            print("Prompt prepared, sending to Gemini...")
 
-            # 4. Call Gemini API
-            print("Sending request to Gemini API...")
             try:
                 response = self.model.generate_content([prompt, image])
-                print("Received response from Gemini API")
-                print(f"Raw response: {response.text[:200]}...")  # First 200 chars
+                print("Received response from Gemini")
+                print(f"Raw response: {response.text[:200]}...")
             except Exception as e:
                 print(f"Gemini API error: {str(e)}")
                 return Response({'error': f'Gemini API error: {str(e)}'}, status=500)
 
-            # 5. Process response
             try:
                 response_text = response.text
                 if '```json' in response_text:
                     json_str = response_text.split('```json')[1].split('```')[0].strip()
                 else:
                     json_str = response_text.strip()
-                print(f"Processed response: {json_str[:200]}...")  # First 200 chars
+                print(f"Processed response: {json_str[:200]}...")
                 return Response({
                     'success': True,
                     'receipt_data': json_str
